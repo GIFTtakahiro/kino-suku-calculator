@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIFT - 価格計算ツール</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f8f5f2;
+            color: #2d3748;
+        }
+        
+        .calculator-container {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        
+        .wood-option {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .wood-option.selected {
+            border-color: #4a6741;
+            background-color: rgba(74, 103, 65, 0.1);
+        }
+        
+        .input-field {
+            transition: all 0.2s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #4a6741;
+            box-shadow: 0 0 0 3px rgba(74, 103, 65, 0.2);
+        }
+        
+        .btn-primary {
+            background-color: #4a6741;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3d5635;
+            transform: translateY(-2px);
+        }
+        
+        .result-container {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        
+        .price-tag {
+            background-color: #4a6741;
+            color: white;
+            transform: rotate(-2deg);
+        }
+        
+        .wood-icon {
+            width: 40px;
+            height: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen py-8 px-4 sm:px-6">
+        <div class="max-w-4xl mx-auto">
+            <!-- ヘッダー -->
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">KINO-SUKU-original-</h1>
+                <p class="text-xl text-gray-600">あなたのデザインを簡単お見積り</p>
+                <div class="w-20 h-1 bg-green-800 mx-auto mt-4 rounded-full"></div>
+            </div>
+            
+            <!-- サイト解説 -->
+            <div class="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-6 mb-8">
+                <h2 class="text-lg font-semibold text-blue-800 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    ご利用方法
+                </h2>
+                <div class="text-gray-700 leading-relaxed">
+                    <p class="mb-3">
+                        あなたのデザイン展開図（部品図）を<strong>1820㎜×910㎜</strong>の範囲に隙間を<strong>3㎝程度</strong>でレイアウトしてください。（アバウトでも構いません）
+                    </p>
+                    <p class="mb-3">
+                        その結果で必要な合板枚数が大体分かると思います。その枚数を入力、その他必要な項目をお選び下さい。
+                    </p>
+                    <p class="text-sm text-gray-600 bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">
+                        <strong>※ご注意：</strong>これはあくまでも概算のお見積りの為、正確なお見積りは発注頂いた後におつくりします。特殊なデザインの場合は加工時間に差が出ますので金額が増額になる場合がございます。ご了承ください。
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 計算機本体 -->
+            <div class="calculator-container rounded-2xl p-6 md:p-8 mb-8">
+                <!-- 合板の種類選択 -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                        合板の種類を選択
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="wood-option rounded-xl p-4 cursor-pointer" data-price="4500" data-name="国産材ヒノキ合板（化粧）12㎜" onclick="selectWood(this)">
+                            <svg class="wood-icon mr-3 mb-2" viewBox="0 0 24 24" fill="#8B4513">
+                                <path d="M4,3C2.89,3 2,3.89 2,5V19C2,20.11 2.89,21 4,21H20C21.11,21 22,20.11 22,19V5C22,3.89 21.11,3 20,3H4M4,5H20V19H4V5M6,7V9H18V7H6M6,11V13H18V11H6M6,15V17H14V15H6Z" />
+                            </svg>
+                            <div>
+                                <h3 class="font-medium text-sm">国産材ヒノキ合板（化粧）12㎜</h3>
+                                <p class="text-sm text-gray-600">¥4,500/枚</p>
+                                <p class="text-xs text-gray-500">サイズ：3×6（1820×910）</p>
+                            </div>
+                        </div>
+                        
+                        <div class="wood-option rounded-xl p-4 cursor-pointer" data-price="3500" data-name="愛知県産材ヒノキ合板（構造用）12㎜" onclick="selectWood(this)">
+                            <svg class="wood-icon mr-3 mb-2" viewBox="0 0 24 24" fill="#A0522D">
+                                <path d="M4,3C2.89,3 2,3.89 2,5V19C2,20.11 2.89,21 4,21H20C21.11,21 22,20.11 22,19V5C22,3.89 21.11,3 20,3H4M4,5H20V19H4V5M6,7V9H18V7H6M6,11V13H18V11H6M6,15V17H14V15H6Z" />
+                            </svg>
+                            <div>
+                                <h3 class="font-medium text-sm">愛知県産材ヒノキ合板（構造用）12㎜</h3>
+                                <p class="text-sm text-gray-600">¥3,500/枚</p>
+                                <p class="text-xs text-gray-500">サイズ：3×6（1820×910）</p>
+                            </div>
+                        </div>
+                        
+                        <div class="wood-option rounded-xl p-4 cursor-pointer" data-price="6500" data-name="国産材ヒノキ合板（構造用）24㎜" onclick="selectWood(this)">
+                            <svg class="wood-icon mr-3 mb-2" viewBox="0 0 24 24" fill="#8B4513">
+                                <path d="M4,3C2.89,3 2,3.89 2,5V19C2,20.11 2.89,21 4,21H20C21.11,21 22,20.11 22,19V5C22,3.89 21.11,3 20,3H4M4,5H20V19H4V5M6,7V9H18V7H6M6,11V13H18V11H6M6,15V17H14V15H6Z" />
+                            </svg>
+                            <div>
+                                <h3 class="font-medium text-sm">国産材ヒノキ合板（構造用）24㎜</h3>
+                                <p class="text-sm text-gray-600">¥6,500/枚</p>
+                                <p class="text-xs text-gray-500">サイズ：3×6（1820×910）</p>
+                            </div>
+                        </div>
+                        
+                        <div class="wood-option rounded-xl p-4 cursor-pointer" data-price="6500" data-name="愛知県産材ヒノキ合板（構造用）24㎜" onclick="selectWood(this)">
+                            <svg class="wood-icon mr-3 mb-2" viewBox="0 0 24 24" fill="#A0522D">
+                                <path d="M4,3C2.89,3 2,3.89 2,5V19C2,20.11 2.89,21 4,21H20C21.11,21 22,20.11 22,19V5C22,3.89 21.11,3 20,3H4M4,5H20V19H4V5M6,7V9H18V7H6M6,11V13H18V11H6M6,15V17H14V15H6Z" />
+                            </svg>
+                            <div>
+                                <h3 class="font-medium text-sm">愛知県産材ヒノキ合板（構造用）24㎜</h3>
+                                <p class="text-sm text-gray-600">¥6,500/枚</p>
+                                <p class="text-xs text-gray-500">サイズ：3×6（1820×910）</p>
+                            </div>
+                        </div>
+                        
+                        <div class="wood-option rounded-xl p-4 cursor-pointer" data-price="3500" data-name="国産材型枠合板（グリーン）" onclick="selectWood(this)">
+                            <svg class="wood-icon mr-3 mb-2" viewBox="0 0 24 24" fill="#228B22">
+                                <path d="M4,3C2.89,3 2,3.89 2,5V19C2,20.11 2.89,21 4,21H20C21.11,21 22,20.11 22,19V5C22,3.89 21.11,3 20,3H4M4,5H20V19H4V5M6,7V9H18V7H6M6,11V13H18V11H6M6,15V17H14V15H6Z" />
+                            </svg>
+                            <div>
+                                <h3 class="font-medium text-sm">国産材型枠合板（グリーン）</h3>
+                                <p class="text-sm text-gray-600">¥3,500/枚</p>
+                                <p class="text-xs text-gray-500">サイズ：3×6（1820×910）</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 枚数と加工オプション -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                        </svg>
+                        枚数とデザイン費
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2">合板の枚数</label>
+                            <input type="number" id="sheets" min="1" value="1" class="input-field w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none" oninput="calculatePrice(); updateDesignFeeOptions();">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">デザイン費（1案につき）</label>
+                            <select id="furniture-type" class="input-field w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none" onchange="calculatePrice()">
+                                <option value="2000">デザインDXFデータにて依頼 (¥2,000/1案)</option>
+                                <option value="6000">手書き詳細寸法入りにて依頼 (¥6,000/1案)</option>
+                                <option value="18000">手書き外形寸法程度詳細なし (¥18,000/1案)</option>
+                                <option value="50000">別途ヒアリングにてデザイン (¥50,000/1案～)</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">※デザイン毎に概算してください。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 加工費＆オプション -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        加工費＆オプション
+                    </h2>
+                    
+                    <!-- 必須項目 -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-3 text-red-600">必須項目</h3>
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="processing" class="w-5 h-5 text-red-600 rounded focus:ring-red-600" checked disabled>
+                                <label for="processing" class="ml-2 text-gray-700 font-medium">加工費 (¥5,500/枚)</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- オプション項目 -->
+                    <div>
+                        <h3 class="text-lg font-medium mb-3 text-blue-600">オプション（選択項目）</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-center mb-2">
+                                    <input type="checkbox" id="polishing" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-600" onchange="calculatePrice()">
+                                    <label for="polishing" class="ml-2 text-gray-700">研磨費 (¥1,000/枚)</label>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-center mb-2">
+                                    <input type="checkbox" id="disposal" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-600" onchange="calculatePrice()">
+                                    <label for="disposal" class="ml-2 text-gray-700">残材処分費 (¥250/枚)</label>
+                                </div>
+                                <p class="text-xs text-gray-500">※無しの選択はお受け取りの場合のみ</p>
+                            </div>
+                            
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-center mb-2">
+                                    <input type="checkbox" id="painting" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-600" onchange="calculatePrice()">
+                                    <label for="painting" class="ml-2 text-gray-700">塗装費 (¥1,200/枚)</label>
+                                </div>
+                                <p class="text-xs text-gray-500">※水性木製塗料にて塗分け無し</p>
+                            </div>
+                            
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-center mb-2">
+                                    <input type="checkbox" id="shipping" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-600" onchange="calculatePrice()">
+                                    <label for="shipping" class="ml-2 text-gray-700">郵送費 (¥800/枚)</label>
+                                </div>
+                                <p class="text-xs text-gray-500">※概算送料のため、出来上がり寸法にて変動します。</p>
+                                <p class="text-xs text-gray-500">※受け取り（豊川市工場にて）の場合はチェックを外して下さい。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 計算ボタン -->
+                <div class="text-center">
+                    <button id="calculate-btn" class="btn-primary px-8 py-3 rounded-lg text-white font-medium shadow-lg" onclick="calculatePriceWithScroll()">
+                        価格を計算する
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 結果表示 -->
+            <div id="result-section" class="result-container rounded-2xl p-6 md:p-8 mb-8 hidden">
+                <h2 class="text-2xl font-bold mb-6 text-center">お見積り結果</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">選択内容</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex justify-between">
+                                <span>合板の種類:</span>
+                                <span id="selected-wood-type" class="font-medium">-</span>
+                            </li>
+                            <li class="flex justify-between">
+                                <span>合板の枚数:</span>
+                                <span id="selected-sheets" class="font-medium">-</span>
+                            </li>
+                            <li class="flex justify-between">
+                                <span>デザイン費:</span>
+                                <span id="selected-furniture" class="font-medium">-</span>
+                            </li>
+                        </ul>
+                        
+                        <h3 class="text-lg font-semibold mt-6 mb-3">加工オプション</h3>
+                        <ul id="options-list" class="space-y-2 text-gray-700">
+                            <!-- JSで動的に生成 -->
+                        </ul>
+                    </div>
+                    
+                    <div class="flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3">合計金額</h3>
+                            <div class="bg-gray-50 rounded-xl p-5 mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-600">合板費用:</span>
+                                    <span id="wood-cost" class="font-medium">¥0</span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-600">デザイン費:</span>
+                                    <span id="furniture-cost" class="font-medium">¥0</span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-600">加工オプション費用:</span>
+                                    <span id="options-cost" class="font-medium">¥0</span>
+                                </div>
+                                <div class="h-px bg-gray-200 my-3"></div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold">合計:</span>
+                                    <span id="total-cost" class="font-bold text-xl">¥0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="bg-green-50 border-2 border-green-100 rounded-xl p-5">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-600">小計（税抜）:</span>
+                                    <span id="subtotal" class="font-medium">¥0</span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-600">消費税（10%）:</span>
+                                    <span id="tax-amount" class="font-medium">¥0</span>
+                                </div>
+                                <div class="h-px bg-gray-200 my-3"></div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold text-lg">合計（税込）:</span>
+                                    <span id="final-price" class="text-2xl font-bold text-green-800">¥0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 割引セクション -->
+                <div class="mt-8 bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-yellow-800">特別割引について</h3>
+                    <p class="text-gray-700 mb-4">
+                        この度はお見積りありがとうございます。以下の場合は特別割引を設けています。チェックにて割引価格をご確認ください。※割引項目は以下の通りです。
+                    </p>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <input type="checkbox" id="discount-a" class="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-600 mt-1">
+                            <label for="discount-a" class="ml-3 text-gray-700">
+                                <span class="font-medium">A：</span>他の皆様にも使って頂ける様、デザインの複製を許可頂ける場合はデザイン費無料（使用写真10枚以上の提供もお願いします）
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <input type="checkbox" id="discount-b" class="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-600 mt-1">
+                            <label for="discount-b" class="ml-3 text-gray-700">
+                                <span class="font-medium">B：</span>SNSのキャンペーンを見た10％割引（合言葉が書ける場合）
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <input type="checkbox" id="discount-c" class="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-600 mt-1">
+                            <label for="discount-c" class="ml-3 text-gray-700">
+                                <span class="font-medium">C：</span>エシカル・ツキイチマルシェ出展者イベント渡し20％割引（送料はチェックを外してください）
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <input type="checkbox" id="discount-d" class="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-600 mt-1">
+                            <label for="discount-d" class="ml-3 text-gray-700">
+                                <span class="font-medium">D：</span>リピート割引（購入が2回目以降の方）10％割引
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm text-gray-600 bg-gray-50 p-3 rounded border-l-4 border-gray-400">
+                        <p><strong>※B、C、Dに該当する場合はいずれか一つにチェックをお願いします。また、送料は割引対象にはなっていません。</strong></p>
+                    </div>
+                    
+                    <!-- 割引計算ボタン -->
+                    <div class="mt-6 text-center">
+                        <button class="btn-primary px-6 py-3 rounded-lg text-white font-medium shadow-lg" onclick="calculateDiscount()">
+                            割引後の価格を確認する
+                        </button>
+                        <p class="text-sm text-gray-600 mt-2">
+                            ※チェックを変更した場合はもう一度再計算ボタンを押してください
+                        </p>
+                    </div>
+                    
+                    <!-- 割引後価格表示 -->
+                    <div id="discount-result" class="mt-6 bg-white border border-yellow-300 rounded-lg p-4 hidden">
+                        <h4 class="font-semibold text-yellow-800 mb-2">割引適用後価格</h4>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">割引額:</span>
+                            <span id="discount-amount" class="font-medium text-red-600">-¥0</span>
+                        </div>
+                        <div class="h-px bg-gray-200 my-2"></div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-lg">最終価格（税込）:</span>
+                            <span id="discounted-final-price" class="text-2xl font-bold text-green-800">¥0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <p class="text-gray-600 mb-4">ご質問やご相談はお気軽にお問い合わせください</p>
+                    <a href="https://kino-suku.stores.jp/inquiry" target="_blank" class="inline-flex items-center justify-center bg-green-800 hover:bg-green-900 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-300">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        お問い合わせ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedWood = null;
+        
+        function selectWood(element) {
+            // 以前の選択をリセット
+            document.querySelectorAll('.wood-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // 新しい選択を設定
+            element.classList.add('selected');
+            selectedWood = {
+                name: element.dataset.name,
+                price: parseInt(element.dataset.price)
+            };
+            
+            calculatePrice();
+        }
+        
+        function updateDesignFeeOptions() {
+            // デザイン費は枚数に関係なく固定なので、この関数は不要になりました
+            calculatePrice();
+        }
+        
+        function selectOptionByValue(selectElement, value) {
+            for(let i = 0; i < selectElement.options.length; i++) {
+                if(selectElement.options[i].value === value) {
+                    selectElement.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+        
+        function calculatePrice() {
+            if (!selectedWood) {
+                alert('合板の種類を選択してください');
+                return;
+            }
+            
+            const sheets = parseInt(document.getElementById('sheets').value) || 1;
+            const furnitureType = document.getElementById('furniture-type');
+            const furniturePrice = parseInt(furnitureType.value);
+            const furnitureName = furnitureType.options[furnitureType.selectedIndex].text;
+            
+            // 加工費（必須）とオプション
+            const requiredOptions = [
+                { id: 'processing', name: '加工費', price: 5500, required: true }
+            ];
+            
+            const options = [
+                { id: 'polishing', name: '研磨費', price: 1000 },
+                { id: 'disposal', name: '残材処分費', price: 250 },
+                { id: 'painting', name: '塗装費', price: 1200 },
+                { id: 'shipping', name: '郵送費', price: 800 }
+            ];
+            
+            // 必須項目とオプションの計算
+            let optionsCost = 0;
+            const selectedOptions = [];
+            
+            // 必須項目（加工費）は常に含める
+            requiredOptions.forEach(option => {
+                const optionTotal = option.price * sheets;
+                optionsCost += optionTotal;
+                selectedOptions.push({
+                    name: option.name,
+                    price: option.price,
+                    total: optionTotal,
+                    required: true
+                });
+            });
+            
+            // 選択可能なオプション
+            options.forEach(option => {
+                const checkbox = document.getElementById(option.id);
+                if (checkbox.checked) {
+                    const optionTotal = option.price * sheets;
+                    optionsCost += optionTotal;
+                    selectedOptions.push({
+                        name: option.name,
+                        price: option.price,
+                        total: optionTotal,
+                        required: false
+                    });
+                }
+            });
+            
+            // 合板コスト
+            const woodCost = selectedWood.price * sheets;
+            
+            // 小計（税抜）
+            const subtotal = woodCost + furniturePrice + optionsCost;
+            
+            // 消費税計算
+            const taxAmount = Math.round(subtotal * 0.1);
+            
+            // 合計（税込）
+            const totalWithTax = subtotal + taxAmount;
+            
+            // 結果を表示
+            document.getElementById('result-section').classList.remove('hidden');
+            document.getElementById('selected-wood-type').textContent = `${selectedWood.name} (¥${selectedWood.price.toLocaleString()}/枚)`;
+            document.getElementById('selected-sheets').textContent = `${sheets}枚`;
+            document.getElementById('selected-furniture').textContent = furnitureName;
+            
+            document.getElementById('wood-cost').textContent = `¥${woodCost.toLocaleString()}`;
+            document.getElementById('furniture-cost').textContent = `¥${furniturePrice.toLocaleString()}`;
+            document.getElementById('options-cost').textContent = `¥${optionsCost.toLocaleString()}`;
+            document.getElementById('total-cost').textContent = `¥${subtotal.toLocaleString()}`;
+            document.getElementById('subtotal').textContent = `¥${subtotal.toLocaleString()}`;
+            document.getElementById('tax-amount').textContent = `¥${taxAmount.toLocaleString()}`;
+            document.getElementById('final-price').textContent = `¥${totalWithTax.toLocaleString()}`;
+            
+            // オプションリストを更新
+            const optionsList = document.getElementById('options-list');
+            optionsList.innerHTML = '';
+            
+            selectedOptions.forEach(option => {
+                const li = document.createElement('li');
+                li.className = 'flex justify-between';
+                const requiredLabel = option.required ? ' <span class="text-red-600 text-xs">[必須]</span>' : '';
+                li.innerHTML = `
+                    <span>${option.name}${requiredLabel} (¥${option.price.toLocaleString()}/枚 × ${sheets}枚):</span>
+                    <span class="font-medium">¥${option.total.toLocaleString()}</span>
+                `;
+                optionsList.appendChild(li);
+            });
+        }
+        
+        function calculatePriceWithScroll() {
+            calculatePrice();
+            // スムーズスクロール
+            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function calculateDiscount() {
+            const discountA = document.getElementById('discount-a').checked;
+            const discountB = document.getElementById('discount-b').checked;
+            const discountC = document.getElementById('discount-c').checked;
+            const discountD = document.getElementById('discount-d').checked;
+            
+            // B、C、Dの複数選択を防ぐ
+            if ((discountB && discountC) || (discountB && discountD) || (discountC && discountD)) {
+                alert('B、C、Dの割引は一つのみ選択してください。');
+                // 最後にチェックされたもの以外をリセット
+                if (event.target.id === 'discount-b') {
+                    document.getElementById('discount-c').checked = false;
+                    document.getElementById('discount-d').checked = false;
+                } else if (event.target.id === 'discount-c') {
+                    document.getElementById('discount-b').checked = false;
+                    document.getElementById('discount-d').checked = false;
+                } else if (event.target.id === 'discount-d') {
+                    document.getElementById('discount-b').checked = false;
+                    document.getElementById('discount-c').checked = false;
+                }
+            }
+            
+            // 元の価格情報を取得
+            const sheets = parseInt(document.getElementById('sheets').value) || 1;
+            const furnitureType = document.getElementById('furniture-type');
+            const furniturePrice = parseInt(furnitureType.value);
+            
+            // 送料を除いた価格を計算（送料は割引対象外）
+            const shippingCheckbox = document.getElementById('shipping');
+            const shippingCost = shippingCheckbox.checked ? 800 * sheets : 0;
+            
+            // 元の税込価格を取得
+            const finalPriceText = document.getElementById('final-price').textContent;
+            const originalPrice = parseInt(finalPriceText.replace(/[¥,]/g, ''));
+            
+            // 送料を除いた割引対象価格
+            const discountablePrice = originalPrice - Math.round(shippingCost * 1.1); // 送料の税込分を除く
+            
+            let discountAmount = 0;
+            let discountDescription = '';
+            
+            // 割引の計算
+            if (discountA) {
+                // Aの場合：デザイン費無料
+                const designFeeWithTax = Math.round(furniturePrice * 1.1);
+                discountAmount += designFeeWithTax;
+                discountDescription += 'デザイン費無料 ';
+            }
+            
+            if (discountB) {
+                // Bの場合：10%割引
+                discountAmount += Math.round(discountablePrice * 0.1);
+                discountDescription += '10%割引 ';
+            } else if (discountC) {
+                // Cの場合：20%割引
+                discountAmount += Math.round(discountablePrice * 0.2);
+                discountDescription += '20%割引 ';
+            } else if (discountD) {
+                // Dの場合：10%割引
+                discountAmount += Math.round(discountablePrice * 0.1);
+                discountDescription += 'リピート10%割引 ';
+            }
+            
+            if (discountAmount > 0) {
+                const discountedPrice = originalPrice - discountAmount;
+                
+                document.getElementById('discount-amount').textContent = `-¥${discountAmount.toLocaleString()}`;
+                document.getElementById('discounted-final-price').textContent = `¥${discountedPrice.toLocaleString()}`;
+                document.getElementById('discount-result').classList.remove('hidden');
+            } else {
+                document.getElementById('discount-result').classList.add('hidden');
+            }
+        }
+        
+        // 初期設定：最初の木材を選択
+        window.onload = function() {
+            const firstWood = document.querySelector('.wood-option');
+            if (firstWood) {
+                selectWood(firstWood);
+            }
+        };
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96612d6fb137830e',t:'MTc1MzY3MjE2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
